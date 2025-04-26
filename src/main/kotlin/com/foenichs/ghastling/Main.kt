@@ -1,0 +1,53 @@
+package com.foenichs.ghastling
+
+import com.foenichs.ghastling.config.Config
+import com.foenichs.ghastling.utils.manager.ButtonManager
+import com.foenichs.ghastling.utils.manager.DropDownManager
+import com.foenichs.ghastling.utils.manager.ModalManager
+import com.foenichs.ghastling.utils.manager.SlashCommandManager
+import dev.minn.jda.ktx.jdabuilder.default
+import dev.minn.jda.ktx.jdabuilder.intents
+import kotlinx.serialization.json.Json
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.OnlineStatus
+import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.MemberCachePolicy
+import net.dv8tion.jda.api.utils.cache.CacheFlag
+import org.slf4j.LoggerFactory
+import java.io.File
+
+fun main() {
+    Ghastling
+}
+
+val logger = LoggerFactory.getLogger("Ghastling")
+
+object Ghastling {
+    val JDA: JDA
+    private val settings: Config
+
+    init {
+        val credentialFile = File("config/config.json")
+        settings = Json.decodeFromString<Config>(credentialFile.readText())
+        JDA = default(settings.token) {
+            enableCache(CacheFlag.VOICE_STATE)
+            setStatus(OnlineStatus.IDLE)
+            setActivity(Activity.customStatus("currently in beta"))
+            intents += listOf(
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.MESSAGE_CONTENT,
+            )
+        }
+
+        JDA.awaitReady()
+
+        ButtonManager.startListen(JDA)
+        DropDownManager.startListen(JDA)
+        ModalManager.startListen(JDA)
+        com.foenichs.ghastling.utils.manager.SlashCommandManager.startListen(JDA)
+
+        println("[Ghastling] The application started successfully!")
+    }
+}
