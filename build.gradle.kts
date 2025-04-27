@@ -1,6 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "2.1.20"
     kotlin("plugin.serialization") version "2.0.21"
+    id("org.openrewrite.rewrite") version "7.4.1"
     application
 }
 
@@ -13,9 +14,11 @@ repositories {
 }
 
 dependencies {
-    implementation("net.dv8tion", "JDA", "5.3.0")
+//    implementation("net.dv8tion", "JDA", "5.3.0")
+    implementation("io.github.freya022:JDA:6dc8746825")
 
-    implementation("club.minnced", "jda-ktx","0.12.0")
+//    implementation("club.minnced", "jda-ktx","0.12.0")
+    implementation("io.github.freya022:jda-ktx:e6ec98ea57")
 
     implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.8.0")
 

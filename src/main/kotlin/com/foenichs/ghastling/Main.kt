@@ -1,6 +1,7 @@
 package com.foenichs.ghastling
 
 import com.foenichs.ghastling.config.Config
+import com.foenichs.ghastling.modules.TagCmdModals
 import com.foenichs.ghastling.utility.ServerInitialisation
 import com.foenichs.ghastling.utils.manager.ButtonManager
 import com.foenichs.ghastling.utils.manager.DropDownManager
@@ -49,6 +50,7 @@ object Ghastling {
         SlashCommandManager.startListen(JDA)
 
         ServerInitialisation
+        TagCmdModals
 
         println("[Ghastling] The application started successfully!")
     }
