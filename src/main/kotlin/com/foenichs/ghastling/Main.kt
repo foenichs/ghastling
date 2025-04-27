@@ -1,6 +1,7 @@
 package com.foenichs.ghastling
 
 import com.foenichs.ghastling.config.Config
+import com.foenichs.ghastling.utility.ServerInitialisation
 import com.foenichs.ghastling.utils.manager.ButtonManager
 import com.foenichs.ghastling.utils.manager.DropDownManager
 import com.foenichs.ghastling.utils.manager.ModalManager
@@ -12,7 +13,6 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
-import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -46,7 +46,9 @@ object Ghastling {
         ButtonManager.startListen(JDA)
         DropDownManager.startListen(JDA)
         ModalManager.startListen(JDA)
-        com.foenichs.ghastling.utils.manager.SlashCommandManager.startListen(JDA)
+        SlashCommandManager.startListen(JDA)
+
+        ServerInitialisation
 
         println("[Ghastling] The application started successfully!")
     }
