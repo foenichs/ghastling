@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📨 Support Server
-    about: Join the support server to contact the developer.
+    about: Join the support server to contact the developer
     url: https://discord.com/oauth2/authorize?client_id=1365745768383905923
   - name: 🤖 Add to Server
-    about: Add the Ghastling app to your Discord server.
+    about: Add the Ghastling app to your Discord server
     url: https://discord.com/oauth2/authorize?client_id=1365745768383905923
