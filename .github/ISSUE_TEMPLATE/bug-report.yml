@@ -1,0 +1,43 @@
+name: 🐛 Bug report
+description: Something isn't working
+title: "[Bug]: "
+labels: [bug]
+assignees:
+  - foenichs
+body:
+  - type: checkboxes
+    attributes:
+      label: Please confirm the following.
+      options:
+        - label: I checked the [existing issues](https://github.com/foenichs/ghastling/issues) for duplicate problems
+          required: true
+        - label: I am using the [official instance](https://discord.com/oauth2/authorize?client_id=1365745768383905923) or selfhosting the latest version
+          required: true
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is. Include screenshots if applicable.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Use the '...'
+        2. Click on '...'
+        3. Add a '...'
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+    validations:
+      required: false
