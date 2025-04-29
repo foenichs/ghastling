@@ -2,6 +2,7 @@ package com.foenichs.ghastling
 
 import com.foenichs.ghastling.config.Config
 import com.foenichs.ghastling.modules.TagCmdModals
+import com.foenichs.ghastling.modules.legacytags.LegacyTags
 import com.foenichs.ghastling.utility.ServerInitialisation
 import com.foenichs.ghastling.utils.manager.ButtonManager
 import com.foenichs.ghastling.utils.manager.DropDownManager
@@ -51,6 +52,7 @@ object Ghastling {
 
         ServerInitialisation
         TagCmdModals
+        LegacyTags
 
         println("[Ghastling] The application started successfully!")
     }
