@@ -8,8 +8,6 @@ import dev.minn.jda.ktx.interactions.commands.option
 import dev.minn.jda.ktx.interactions.commands.subcommand
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.channel.Channel
-import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 
@@ -33,14 +31,22 @@ object SlashCommandManager {
         pokestop?.updateCommands()?.addCommands(
             Command("tag", "Manage tags for this server.") {
                 defaultPermissions = DefaultMemberPermissions.enabledFor(
-                    Permission.MANAGE_SERVER, Permission.MANAGE_CHANNEL
+                    Permission.MESSAGE_MANAGE
                 )
                 subcommand("add", "Adds a new tag for this server.") {
                     option<String>(
-                        "name", "The name to use and send this tag.", true)
+                        "name", "The name to use and send this tag.", true
+                    )
+                    option<String>(
+                        "message", "The url of the message that should be sent.", true
+                    )
                 }
-            }
-        )?.queue()
+                subcommand("send", "Sends a tag of this server.") {
+                    option<String>(
+                        "name", "The name of the tag you want to send.", true
+                    )
+                }
+            })?.queue()
 
         // Adds global commands
         Ghastling.JDA.updateCommands().addCommands(
