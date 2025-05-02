@@ -1,4 +1,4 @@
-package com.foenichs.ghastling.modules
+package com.foenichs.ghastling.modules.tags
 
 import com.foenichs.ghastling.utils.entities.SlashCommandEvent
 import com.foenichs.ghastling.utils.sql.SQL

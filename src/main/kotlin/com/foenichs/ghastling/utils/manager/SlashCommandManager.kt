@@ -1,7 +1,7 @@
 package com.foenichs.ghastling.utils.manager
 
 import com.foenichs.ghastling.Ghastling
-import com.foenichs.ghastling.modules.TagCmd
+import com.foenichs.ghastling.modules.tags.TagCmd
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option

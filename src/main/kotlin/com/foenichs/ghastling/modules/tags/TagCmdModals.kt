@@ -1,4 +1,4 @@
-package com.foenichs.ghastling.modules
+package com.foenichs.ghastling.modules.tags
 
 import com.foenichs.ghastling.utils.entities.ModalEvent
 import dev.minn.jda.ktx.interactions.components.Container

@@ -1,8 +1,8 @@
 package com.foenichs.ghastling
 
 import com.foenichs.ghastling.config.Config
-import com.foenichs.ghastling.modules.TagCmdModals
-import com.foenichs.ghastling.modules.legacytags.LegacyTags
+import com.foenichs.ghastling.modules.tags.TagCmdModals
+import com.foenichs.ghastling.modules.tags.LegacyTags
 import com.foenichs.ghastling.utility.ServerInitialisation
 import com.foenichs.ghastling.utils.manager.ButtonManager
 import com.foenichs.ghastling.utils.manager.DropDownManager
@@ -35,7 +35,7 @@ object Ghastling {
         JDA = default(settings.token) {
             enableCache(CacheFlag.VOICE_STATE)
             setStatus(OnlineStatus.IDLE)
-            setActivity(Activity.customStatus("currently in beta"))
+//            setActivity(Activity.customStatus("currently in beta"))
             intents += listOf(
                 GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.GUILD_MEMBERS,

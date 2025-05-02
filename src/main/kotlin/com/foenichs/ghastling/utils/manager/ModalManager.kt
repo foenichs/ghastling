@@ -1,6 +1,6 @@
 package com.foenichs.ghastling.utils.manager
 
-import com.foenichs.ghastling.modules.TagCmdModals
+import com.foenichs.ghastling.modules.tags.TagCmdModals
 import dev.minn.jda.ktx.events.listener
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
