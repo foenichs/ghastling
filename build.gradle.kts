@@ -1,13 +1,12 @@
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(22))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.1.20"
+    kotlin ("jvm") version "2.1.20"
     kotlin("plugin.serialization") version "2.0.21"
-    id("org.openrewrite.rewrite") version "7.4.1"
     application
 }
 
@@ -27,9 +26,6 @@ dependencies {
     implementation("io.github.freya022:jda-ktx:e6ec98ea57")
 
     implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.8.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.10")
-
-    implementation("com.google.code.gson:gson:2.13.1")
 
     implementation("io.ktor", "ktor-client-core-jvm", "2.3.12")
     implementation("io.ktor", "ktor-client-cio", "2.3.12")
