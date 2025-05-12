@@ -1,8 +1,8 @@
 package com.foenichs.ghastling
 
 import com.foenichs.ghastling.config.Config
-import com.foenichs.ghastling.modules.tags.TagCmdModals
 import com.foenichs.ghastling.modules.tags.LegacyTags
+import com.foenichs.ghastling.modules.tags.TagCmdModals
 import com.foenichs.ghastling.utility.ServerInitialisation
 import com.foenichs.ghastling.utils.manager.ButtonManager
 import com.foenichs.ghastling.utils.manager.DropDownManager
@@ -13,7 +13,6 @@ import dev.minn.jda.ktx.jdabuilder.intents
 import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.LoggerFactory
@@ -21,6 +20,12 @@ import java.io.File
 
 fun main() {
     Ghastling
+}
+
+val json = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+    encodeDefaults = true
 }
 
 val logger = LoggerFactory.getLogger("Ghastling")

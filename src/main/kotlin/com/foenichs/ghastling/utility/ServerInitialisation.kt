@@ -16,15 +16,15 @@ object ServerInitialisation {
     init {
         scope.launch {
             val dbGuilds = mutableSetOf<Long>()
-            SQL.call("SELECT guild_id FROM guild_index") {}.use { resultSet ->
+            SQL.call("SELECT guildId FROM guildIndex") {}.use { resultSet ->
                 while (resultSet.next()) {
-                    dbGuilds.add(resultSet.getLong("guild_id"))
+                    dbGuilds.add(resultSet.getLong("guildId"))
                 }
             }
             val activeGuilds = JDA.guilds.map { it.idLong }.toSet()
             for (guildId in dbGuilds) {
                 if (guildId !in activeGuilds) {
-                    SQL.call("DELETE FROM guild_index WHERE guild_id = ?") {
+                    SQL.call("DELETE FROM guildIndex WHERE guildId = ?") {
                         setLong(1, guildId)
                     }
                 }
@@ -35,14 +35,14 @@ object ServerInitialisation {
                 val memberCount = guild.memberCount
 
                 if (guildId !in dbGuilds) {
-                    SQL.call("INSERT INTO guild_index (guild_id, guild_name, member_count) VALUES (?, ?, ?)") {
+                    SQL.call("INSERT INTO guildIndex (guildId, guildName, memberCount) VALUES (?, ?, ?)") {
                         setLong(1, guild.idLong)
                         setString(2, guildName)
                         setInt(3, memberCount)
                     }
                 }
                 else {
-                    SQL.call("UPDATE guild_index SET guild_name = ?, member_count = ? WHERE guild_id = ?") {
+                    SQL.call("UPDATE guildIndex SET guildName = ?, memberCount = ? WHERE guildId = ?") {
                         setString(1, guildName)
                         setInt(2, memberCount)
                         setLong(3, guild.idLong)
@@ -54,11 +54,11 @@ object ServerInitialisation {
 
     val onJoin = JDA.listener<GuildJoinEvent> {
         val guild = it.guild
-        SQL.call("SELECT COUNT(*) FROM legacy_configs WHERE guild_id = ?") {
+        SQL.call("SELECT COUNT(*) FROM guildIndex WHERE guildId = ?") {
             setLong(1, guild.idLong)
         }.use { resultSet ->
             if (resultSet.next() && resultSet.getInt(1) == 0) {
-                SQL.call("INSERT INTO legacy_configs (guild_id, guild_name, member_count) VALUES (?, ?, ?)") {
+                SQL.call("INSERT INTO guildIndex (guildId, guildName, memberCount) VALUES (?, ?, ?)") {
                     setLong(1, guild.idLong)
                     setString(2, guild.name)
                     setInt(3, guild.memberCount)
@@ -68,11 +68,11 @@ object ServerInitialisation {
     }
     val onLeave = JDA.listener<GuildLeaveEvent> {
         val guild = it.guild
-        SQL.call("SELECT COUNT(*) FROM legacy_configs WHERE guild_id = ?") {
+        SQL.call("SELECT COUNT(*) FROM guildIndex WHERE guildId = ?") {
             setLong(1, guild.idLong)
         }.use { resultSet ->
             if (resultSet.next() && resultSet.getInt(1) > 0) {
-                SQL.call("DELETE FROM legacy_configs WHERE guild_id = ?") {
+                SQL.call("DELETE FROM guildIndex WHERE guildId = ?") {
                     setLong(1, guild.idLong)
                 }
             }
