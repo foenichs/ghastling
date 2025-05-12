@@ -26,9 +26,9 @@ object SlashCommandManager {
 
     init {
 
-        // Adds commands to a private server
-        val pokestop = Ghastling.JDA.getGuildById(1263854803553882123)
-        pokestop?.updateCommands()?.addCommands(
+        // Adds commands to a test server
+        val flame = Ghastling.JDA.getGuildById(1044265134253670400)
+        flame?.updateCommands()?.addCommands(
             Command("tag", "Manage tags for this server.") {
                 defaultPermissions = DefaultMemberPermissions.enabledFor(
                     Permission.MESSAGE_MANAGE
@@ -36,9 +36,6 @@ object SlashCommandManager {
                 subcommand("add", "Adds a new tag for this server.") {
                     option<String>(
                         "name", "The name to use and send this tag.", true
-                    )
-                    option<String>(
-                        "message", "The url of the message that should be sent.", true
                     )
                 }
                 subcommand("send", "Sends a tag of this server.") {
