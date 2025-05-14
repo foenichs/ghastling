@@ -1,7 +1,6 @@
 package com.foenichs.ghastling
 
 import com.foenichs.ghastling.config.Config
-import com.foenichs.ghastling.modules.tags.LegacyTags
 import com.foenichs.ghastling.modules.tags.TagCmdModals
 import com.foenichs.ghastling.modules.tags.TagTriggering
 import com.foenichs.ghastling.utility.ServerInitialisation
@@ -58,8 +57,6 @@ object Ghastling {
 
         ServerInitialisation
         TagCmdModals
-        LegacyTags
-
         TagTriggering
 
         println("[Ghastling] The application started successfully!")
