@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.interactions.components.Container
 import dev.minn.jda.ktx.interactions.components.TextDisplay
 import dev.minn.jda.ktx.messages.reply_
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
+import java.net.URL
 
 object TagCmdModals : ModalEvent {
     override suspend fun trigger(it: ModalInteractionEvent) {
@@ -14,10 +15,40 @@ object TagCmdModals : ModalEvent {
             "tagAddModal" -> {
                 val tagName = it.modalId.split(":").getOrNull(1)
 
-                val tagTitle = it.getValue("tagTitle")?.asString
-                val tagDescription = it.getValue("tagDescription")?.asString
-                val tagImageUrl = it.getValue("tagImageUrl")?.asString
-                val tagColor = it.getValue("tagColor")?.asString ?: "0xB6C8B5"
+                val tagTitle = it.getValue("tagTitle")?.asString?.takeIf { it.isNotBlank() }
+                val tagDescription = it.getValue("tagDescription")?.asString?.takeIf { it.isNotBlank() }
+                val tagImageUrl = it.getValue("tagImageUrl")?.asString?.takeIf { it.isNotBlank() }
+                val tagColor = it.getValue("tagColor")?.asString
+
+                if (tagTitle == null && tagDescription == null && tagImageUrl == null) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                +TextDisplay("You **must provide** at least a title, description, or image URL.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                }
+
+                if (tagImageUrl != null) {
+                    try {
+                        URL(tagImageUrl) // This will throw an exception if the URL is invalid
+                    } catch (e: Exception) {
+                        it.reply_(
+                            useComponentsV2 = true,
+                            components = listOf(
+                                Container {
+                                    +TextDisplay("The URL of the image that has been provided is **not** valid.")
+                                },
+                            ),
+                            ephemeral = true,
+                        ).queue()
+                        return
+                    }
+                }
 
                 SQL.call("INSERT INTO tags (guildId, tagName, title, description, imageUrl, color) VALUES (?, ?, ?, ?, ?, ?);") {
                     setLong(1, it.guild?.idLong ?: return)
