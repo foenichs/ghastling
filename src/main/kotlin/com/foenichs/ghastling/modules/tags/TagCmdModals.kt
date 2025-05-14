@@ -6,7 +6,7 @@ import dev.minn.jda.ktx.interactions.components.Container
 import dev.minn.jda.ktx.interactions.components.TextDisplay
 import dev.minn.jda.ktx.messages.reply_
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
-import java.net.URL
+import java.net.URI
 
 object TagCmdModals : ModalEvent {
     override suspend fun trigger(it: ModalInteractionEvent) {
@@ -35,7 +35,7 @@ object TagCmdModals : ModalEvent {
 
                 if (tagImageUrl != null) {
                     try {
-                        URL(tagImageUrl) // This will throw an exception if the URL is invalid
+                        URI(tagImageUrl).toURL() // This will throw an exception if the URL is invalid
                     } catch (e: Exception) {
                         it.reply_(
                             useComponentsV2 = true,
