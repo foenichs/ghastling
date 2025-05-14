@@ -44,19 +44,19 @@ object TagCmd : SlashCommandEvent {
                                 +TextInput("tagTitle", "Title", TextInputStyle.SHORT) {
                                     required = false
                                     requiredLength = 0..256
-//                                    placeholder = "Displayed on top of the tag embed."
+                                    placeholder = "How to use Ghastling"
                                 }
                             },
                             ActionRow {
                                 +TextInput("tagDescription", "Description", TextInputStyle.PARAGRAPH) {
                                     required = false
-//                                    placeholder = "Normal sized text below the title."
+                                    placeholder = "Just add your tag content in this modal. You can use things like emojis or formatting."
                                 }
                             },
                             ActionRow {
                                 +TextInput("tagImageUrl", "Image URL", TextInputStyle.SHORT) {
                                     required = false
-//                                    placeholder = "The url of a large image in the tag embed."
+                                    placeholder = "https://example.com/image.png"
                                 }
                             },
                             ActionRow {
