@@ -31,32 +31,36 @@ object SlashCommandManager {
         flame?.updateCommands()?.addCommands()?.queue()
 
         // Adds global commands
-        Ghastling.JDA.updateCommands().addCommands(
-            Command("tag", "Manage tags for this server.") {
-                defaultPermissions = DefaultMemberPermissions.enabledFor(
-                    Permission.MESSAGE_MANAGE
-                )
-                subcommand("add", "Adds a new tag for this server.") {
-                    option<String>(
-                        "name", "The name to use and send this tag.", true
-                    )
-                }
-                subcommand("remove", "Removes a tag from this server.") {
-                    option<String>(
-                        "name", "The name of the tag that will be removed.", true
-                    )
-                }
-                subcommand("edit", "Edits a existing tag on this server.") {
-                    option<String>(
-                        "name", "The name of the tag that will be edited.", true
-                    )
-                }
+        Ghastling.JDA.updateCommands().addCommands(Command("tag", "Manage tags for this server.") {
+            defaultPermissions = DefaultMemberPermissions.enabledFor(
+                Permission.MESSAGE_MANAGE
+            )
+            subcommand("add", "Adds a new tag for this server.") {
+                option<String>(
+                    "name", "The name to use and send this tag.", true
+                ) { setMaxLength(32) }
+            }
+            subcommand("remove", "Removes a tag from this server.") {
+                option<String>(
+                    "name", "The name of the tag that will be removed.", true
+                ) { setMaxLength(32) }
+            }
+            subcommand("edit", "Edits a existing tag on this server.") {
+                option<String>(
+                    "name", "The name of the tag that will be edited.", true
+                ) { setMaxLength(32) }
+            }
 //                subcommand("send", "Sends a tag of this server.") {
 //                    option<String>(
 //                        "name", "The name of the tag you want to send.", true
 //                    )
 //                }
+        }, Command("config", "Manage settings for this server.") {
+            subcommand("prefix", "Change the prefix to send tags.") {
+                option<String>(
+                    "prefix", "The prefix to send tags. You have to include spaces.", true
+                )
             }
-        ).queue()
+        }).queue()
     }
 }
