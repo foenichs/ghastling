@@ -12,6 +12,24 @@ object TagCmd : SlashCommandEvent {
         val tagName = it.getOption("name")?.asString ?: return
         when (it.subcommandName) {
             "add" -> {
+                val existingTag = SQL.call("SELECT * FROM tags WHERE guildId = ? AND tagName = ?") {
+                    setLong(1, it.guild?.idLong ?: return@call)
+                    setString(2, tagName)
+                }
+
+                if (existingTag.next()) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                +TextDisplay("The tag **$tagName** already exists. You can edit it with </tag edit:1373059281884024974>.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                }
+
                 if (tagName.length > 32) {
                     it.reply_(
                         useComponentsV2 = true,
@@ -92,12 +110,71 @@ object TagCmd : SlashCommandEvent {
                         useComponentsV2 = true,
                         components = listOf(
                             Container {
-                                +TextDisplay("The tag **$tagName** does not exist. You can create it with </tag add:1371594959022587915>.")
+                                +TextDisplay("The tag **$tagName** does not exist. You can create it with </tag add:1373059281884024974>.")
                             },
                         ),
                         ephemeral = true,
                     ).queue()
                 }
+            }
+
+            "edit" -> {
+                val tagResult =
+                    SQL.call("SELECT title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
+                        setLong(1, it.guild?.idLong ?: return@call)
+                        setString(2, tagName)
+                    }
+
+                if (!tagResult.next()) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                +TextDisplay("The tag **$tagName** does not exist. You can create it with </tag add:1373059281884024974>.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                }
+
+                val tagTitle = tagResult.getString("title")
+                val tagDescription = tagResult.getString("description")
+                val tagImageUrl = tagResult.getString("imageUrl")
+                val tagColor = tagResult.getString("color")
+
+                it.replyModal(
+                    Modal("tagEditModal:$tagName", "Edit the $tagName tag") {
+                        builder.addComponents(ActionRow {
+                            +TextInput("tagTitle", "Title", TextInputStyle.SHORT) {
+                                required = false
+                                requiredLength = 0..256
+                                placeholder = "How to use Ghastling"
+                                value = tagTitle
+                            }
+                        }, ActionRow {
+                            +TextInput("tagDescription", "Description", TextInputStyle.PARAGRAPH) {
+                                required = false
+                                placeholder =
+                                    "Just add your tag content in this modal. You can use things like emojis or formatting."
+                                value = tagDescription
+                            }
+                        }, ActionRow {
+                            +TextInput("tagImageUrl", "Image URL", TextInputStyle.SHORT) {
+                                required = false
+                                placeholder = "https://example.com/image.png"
+                                value = tagImageUrl
+                            }
+                        }, ActionRow {
+                            +TextInput("tagColor", "Color (HEX)", TextInputStyle.SHORT) {
+                                required = false
+                                requiredLength = 0..7
+                                placeholder = "#B6C8B5"
+                                value = tagColor
+                            }
+                        })
+                    },
+                ).queue()
             }
 
             "send" -> {

@@ -28,7 +28,10 @@ object SlashCommandManager {
 
         // Adds commands to a test server
         val flame = Ghastling.JDA.getGuildById(1044265134253670400)
-        flame?.updateCommands()?.addCommands(
+        flame?.updateCommands()?.addCommands()?.queue()
+
+        // Adds global commands
+        Ghastling.JDA.updateCommands().addCommands(
             Command("tag", "Manage tags for this server.") {
                 defaultPermissions = DefaultMemberPermissions.enabledFor(
                     Permission.MESSAGE_MANAGE
@@ -43,16 +46,17 @@ object SlashCommandManager {
                         "name", "The name of the tag that will be removed.", true
                     )
                 }
+                subcommand("edit", "Edits a existing tag on this server.") {
+                    option<String>(
+                        "name", "The name of the tag that will be edited.", true
+                    )
+                }
 //                subcommand("send", "Sends a tag of this server.") {
 //                    option<String>(
 //                        "name", "The name of the tag you want to send.", true
 //                    )
 //                }
-            })?.queue()
-
-        // Adds global commands
-        Ghastling.JDA.updateCommands().addCommands(
-//            Insert slash command here
+            }
         ).queue()
     }
 }
