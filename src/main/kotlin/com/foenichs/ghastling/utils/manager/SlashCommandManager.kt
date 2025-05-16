@@ -38,11 +38,16 @@ object SlashCommandManager {
                         "name", "The name to use and send this tag.", true
                     )
                 }
-                subcommand("send", "Sends a tag of this server.") {
+                subcommand("remove", "Removes a tag from this server.") {
                     option<String>(
-                        "name", "The name of the tag you want to send.", true
+                        "name", "The name of the tag that will be removed.", true
                     )
                 }
+//                subcommand("send", "Sends a tag of this server.") {
+//                    option<String>(
+//                        "name", "The name of the tag you want to send.", true
+//                    )
+//                }
             })?.queue()
 
         // Adds global commands
