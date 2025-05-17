@@ -58,6 +58,7 @@ object SlashCommandManager {
                     "space", "Add a space behind the prefix.", true
                 )
             }
+            subcommand("permissions", "Changes who can send tags.")
 //                subcommand("send", "Sends a tag of this server.") {
 //                    option<String>(
 //                        "name", "The name of the tag you want to send.", true

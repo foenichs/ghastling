@@ -216,6 +216,27 @@ object TagCmd : SlashCommandEvent {
                 }
             }
 
+            "permissions" -> {
+                it.reply_(
+                    useComponentsV2 = true,
+                    components = listOf(Container {
+                        accentColor = 0xB6C8B5
+                        +TextDisplay("Here, you can **add or remove roles that can send tags** using Ghastling. This applies to all existing and future tags. You can select up to 12 roles.")
+                    }, ActionRow {
+                        +EntitySelectMenu(
+                            placeholder = "Select roles",
+                            customId = "tagConfigRoles",
+                            types = listOf(
+                                net.dv8tion.jda.api.components.selects.EntitySelectMenu.SelectTarget.ROLE
+                            ),
+                            valueRange = 0..12,
+                        )
+                    }),
+                    ephemeral = true,
+                ).queue()
+                TODO()
+            }
+
             "send" -> {
 //                val resultSet =
 //                    SQL.call("SELECT guild_id, tag_name, components FROM tags WHERE guild_id = ? AND tag_name = ?") {
