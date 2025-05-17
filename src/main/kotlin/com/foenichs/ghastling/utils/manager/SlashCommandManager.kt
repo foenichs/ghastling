@@ -50,17 +50,19 @@ object SlashCommandManager {
                     "name", "The name of the tag that will be edited.", true
                 ) { setMaxLength(32) }
             }
+            subcommand("prefix", "Change the prefix to send tags.") {
+                option<String>(
+                    "prefix", "The prefix to send tags.", true
+                ) { setMaxLength(16) }
+                option<Boolean>(
+                    "space", "Add a space behind the prefix.", true
+                )
+            }
 //                subcommand("send", "Sends a tag of this server.") {
 //                    option<String>(
 //                        "name", "The name of the tag you want to send.", true
 //                    )
 //                }
-        }, Command("config", "Manage settings for this server.") {
-            subcommand("prefix", "Change the prefix to send tags.") {
-                option<String>(
-                    "prefix", "The prefix to send tags. You have to include spaces.", true
-                )
-            }
         }).queue()
     }
 }

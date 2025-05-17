@@ -9,9 +9,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 object TagCmd : SlashCommandEvent {
     override suspend fun trigger(it: SlashCommandInteractionEvent) {
-        val tagName = it.getOption("name")?.asString ?: return
         when (it.subcommandName) {
             "add" -> {
+                val tagName = it.getOption("name")?.asString ?: return
                 val existingTag = SQL.call("SELECT * FROM tags WHERE guildId = ? AND tagName = ?") {
                     setLong(1, it.guild?.idLong ?: return@call)
                     setString(2, tagName)
@@ -85,6 +85,7 @@ object TagCmd : SlashCommandEvent {
             }
 
             "remove" -> {
+                val tagName = it.getOption("name")?.asString ?: return
                 val result = SQL.call("SELECT * FROM tags WHERE guildId = ? AND tagName = ?") {
                     setLong(1, it.guild?.idLong ?: return@call)
                     setString(2, tagName)
@@ -119,6 +120,7 @@ object TagCmd : SlashCommandEvent {
             }
 
             "edit" -> {
+                val tagName = it.getOption("name")?.asString ?: return
                 val tagResult =
                     SQL.call("SELECT title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
                         setLong(1, it.guild?.idLong ?: return@call)
@@ -175,6 +177,43 @@ object TagCmd : SlashCommandEvent {
                         })
                     },
                 ).queue()
+            }
+
+            "prefix" -> {
+                val prefixInput = it.getOption("prefix")?.asString ?: return
+                val space = it.getOption("space")?.asBoolean ?: return
+                val newPrefix = if (space) "$prefixInput " else prefixInput
+                val existingPrefix = SQL.call("SELECT * FROM guildIndex WHERE guildId = ?") {
+                    setLong(1, it.guild?.idLong ?: return@call)
+                }
+
+                if (existingPrefix.next() && existingPrefix.getString("prefix") == newPrefix) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                +TextDisplay("The prefix already is `$newPrefix`, nothing changed.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                } else {
+                    SQL.call("UPDATE guildIndex SET prefix = ? WHERE guildId = ?") {
+                        setString(1, newPrefix)
+                        setLong(2, it.guild?.idLong ?: return@call)
+                    }
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                accentColor = 0xB6C8B5
+                                +TextDisplay("The prefix has been successfully changed to `$newPrefix`.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                }
             }
 
             "send" -> {
