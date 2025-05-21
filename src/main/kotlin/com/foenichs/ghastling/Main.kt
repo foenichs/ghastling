@@ -5,8 +5,8 @@ import com.foenichs.ghastling.modules.tags.TagCmdModals
 import com.foenichs.ghastling.modules.tags.TagTriggering
 import com.foenichs.ghastling.utility.ServerInitialisation
 import com.foenichs.ghastling.utils.manager.ButtonManager
-import com.foenichs.ghastling.utils.manager.DropDownManager
 import com.foenichs.ghastling.utils.manager.ModalManager
+import com.foenichs.ghastling.utils.manager.RoleDropDownManager
 import com.foenichs.ghastling.utils.manager.SlashCommandManager
 import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
@@ -51,7 +51,7 @@ object Ghastling {
         JDA.awaitReady()
 
         ButtonManager.startListen(JDA)
-        DropDownManager.startListen(JDA)
+        RoleDropDownManager.startListen(JDA)
         ModalManager.startListen(JDA)
         SlashCommandManager.startListen(JDA)
 
