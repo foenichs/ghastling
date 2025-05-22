@@ -39,6 +39,9 @@ object SlashCommandManager {
                 option<String>(
                     "name", "The name to use and send this tag.", true
                 ) { setMaxLength(32) }
+                option<String>(
+                    "content", "Optional content, if you don't want to use an embed.", false
+                ) { setMaxLength(4000) }
             }
             subcommand("remove", "Removes a tag from this server.") {
                 option<String>(

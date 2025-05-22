@@ -8,7 +8,8 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 object ModalManager {
     private val modals = mapOf<String, com.foenichs.ghastling.utils.entities.ModalEvent>(
         "tagAddModal" to TagCmdModals,
-        "tagEditModal" to TagCmdModals
+        "tagEditModal" to TagCmdModals,
+        "tagContentEditModal" to TagCmdModals
     )
 
     fun startListen(jda: JDA) = jda.listener<ModalInteractionEvent> {

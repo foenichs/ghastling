@@ -57,6 +57,32 @@ object TagCmd : SlashCommandEvent {
                     ).queue()
                     return
                 }
+
+                val tagContent = it.getOption("content")?.asString
+                if (tagContent != null) {
+                    val prefix = SQL.call("SELECT prefix FROM guildIndex WHERE guildId = ?") {
+                        setLong(1, it.guild?.idLong ?: return)
+                    }.use { resultSet ->
+                        if (resultSet.next()) resultSet.getString("prefix") else null
+                    }
+                    SQL.call("INSERT INTO tags (guildId, tagName, content) VALUES (?, ?, ?);") {
+                        setLong(1, it.guild?.idLong ?: return)
+                        setString(2, tagName)
+                        setString(3, tagContent)
+                    }
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                accentColor = 0xB6C8B5
+                                +TextDisplay("The **$tagName** tag was successfully added, you can now use it with `$prefix$tagName`.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                }
+
                 it.replyModal(
                     Modal("tagAddModal:$tagName", "Add the $tagName tag") {
                         builder.addComponents(ActionRow {
@@ -125,7 +151,7 @@ object TagCmd : SlashCommandEvent {
             "edit" -> {
                 val tagName = it.getOption("name")?.asString ?: return
                 val tagResult =
-                    SQL.call("SELECT title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
+                    SQL.call("SELECT content, title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
                         setLong(1, it.guild?.idLong ?: return@call)
                         setString(2, tagName)
                     }
@@ -139,6 +165,21 @@ object TagCmd : SlashCommandEvent {
                             },
                         ),
                         ephemeral = true,
+                    ).queue()
+                    return
+                }
+
+                val tagContent = tagResult.getString("content")
+                if (tagContent != null) {
+                    it.replyModal(
+                        Modal("tagContentEditModal:$tagName", "Edit the $tagName tag") {
+                            builder.addComponents(ActionRow {
+                                +TextInput("tagContent", "Content", TextInputStyle.PARAGRAPH) {
+                                    required = false
+                                    value = tagContent
+                                }
+                            })
+                        },
                     ).queue()
                     return
                 }

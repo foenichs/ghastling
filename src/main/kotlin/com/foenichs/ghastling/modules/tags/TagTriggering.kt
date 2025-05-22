@@ -23,34 +23,42 @@ object TagTriggering {
         }
         if (result.next()) {
             val prefix = result.getString("prefix")
-            if (messageContent.startsWith(prefix)) {
+            if (messageContent.contains(prefix)) {
                 val arguments = messageContent.removePrefix(prefix).trim()
                 val tagName = arguments.split(Regex("\\s+")).firstOrNull() ?: return@listener
                 val tagResult =
-                    SQL.call("SELECT title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
+                    SQL.call("SELECT content, title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
                         setLong(1, guildId)
                         setString(2, tagName)
                     }
                 if (tagResult.next()) {
+                    val hasContainerContent = !tagResult.getString("title").isNullOrEmpty() ||
+                            !tagResult.getString("description").isNullOrEmpty() ||
+                            !tagResult.getString("imageUrl").isNullOrEmpty()
+
                     channel.send(
                         useComponentsV2 = true,
-                        components = listOf(
-                            Container {
+                        components = listOfNotNull(
+                            tagResult.getString("content")?.takeIf { it.isNotEmpty() }?.let { TextDisplay(it) },
+                            if (hasContainerContent) Container {
                                 accentColor = tagResult.getString("color")?.toIntOrNull(16)
-                                tagResult.getString("title")?.let { +TextDisplay("### " + it) }
+                                tagResult.getString("title")?.let { +TextDisplay("### $it") }
                                 tagResult.getString("description")?.let { +TextDisplay(it) }
                                 tagResult.getString("imageUrl")?.let {
-                                    +MediaGallery {
-                                        item(it)
-                                    }
+                                    +MediaGallery { item(it) }
                                 }
-                            }), mentions = Mentions(
+                            } else null
+                        ),
+                        mentions = Mentions(
                             MentionConfig.users(emptyList()),
                             MentionConfig.roles(emptyList()),
                             everyone = false,
                             here = false,
                         )
                     ).queue()
+                }
+                if (messageContent.startsWith(prefix)) {
+                    message.delete().queue()
                 }
             }
         }

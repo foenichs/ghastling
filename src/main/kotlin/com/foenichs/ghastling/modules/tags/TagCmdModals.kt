@@ -136,6 +136,31 @@ object TagCmdModals : ModalEvent {
                     ephemeral = true,
                 ).queue()
             }
+
+            "tagContentEditModal" -> {
+                SQL.call("UPDATE tags SET content = ? WHERE guildId = ? AND tagName = ?;") {
+                    setString(1, it.getValue("tagContent")?.asString ?: return)
+                    setLong(2, it.guild?.idLong ?: return)
+                    setString(3, tagName)
+                }
+
+                val prefix = SQL.call("SELECT prefix FROM guildIndex WHERE guildId = ?") {
+                    setLong(1, it.guild?.idLong ?: return)
+                }.use { resultSet ->
+                    if (resultSet.next()) resultSet.getString("prefix") else null
+                }
+
+                it.reply_(
+                    useComponentsV2 = true,
+                    components = listOf(
+                        Container {
+                            accentColor = 0xB6C8B5
+                            +TextDisplay("The **$tagName** tag was successfully edited, you can use it with `$prefix$tagName`.")
+                        },
+                    ),
+                    ephemeral = true,
+                ).queue()
+            }
         }
     }
 }
