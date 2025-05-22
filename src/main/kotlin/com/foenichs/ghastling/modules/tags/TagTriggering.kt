@@ -17,6 +17,21 @@ object TagTriggering {
         val message = it.message
         val messageContent = message.contentRaw
         val channel = it.channel
+        val member = it.member
+
+        // Allowed roles check
+        val allowedRolesResult = SQL.call("SELECT roleId FROM tagAllowedRoles WHERE guildId = ?") {
+            setLong(1, guildId)
+        }
+        val allowedRoles = mutableSetOf<Long>()
+        while (allowedRolesResult.next()) {
+            allowedRoles.add(allowedRolesResult.getLong("roleId"))
+        }
+        if (allowedRoles.isNotEmpty()) {
+            val memberRoleIds = member?.roles?.map { it.idLong } ?: emptyList()
+            val hasAllowedRole = memberRoleIds.any { it in allowedRoles }
+            if (!hasAllowedRole) return@listener
+        }
 
         val result = SQL.call("SELECT prefix FROM guildIndex WHERE guildId = ?") {
             setLong(1, guildId)
