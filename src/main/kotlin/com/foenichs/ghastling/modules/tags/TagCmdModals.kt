@@ -62,11 +62,17 @@ object TagCmdModals : ModalEvent {
         }
 
         if (errors.isNotEmpty()) {
+            val errorMessage = if (errors.size > 1) {
+                errors.joinToString("\n- ", prefix = "- ")
+            } else {
+                errors.first()
+            }
+
             it.reply_(
                 useComponentsV2 = true,
                 components = listOf(
                     Container {
-                        +TextDisplay("- " + errors.joinToString("\n- "))
+                        +TextDisplay(errorMessage)
                     },
                 ),
                 ephemeral = true,
