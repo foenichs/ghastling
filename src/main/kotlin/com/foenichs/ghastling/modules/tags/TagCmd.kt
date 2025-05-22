@@ -79,7 +79,7 @@ object TagCmd : SlashCommandEvent {
                         }, ActionRow {
                             +TextInput("tagColor", "Color (HEX)", TextInputStyle.SHORT) {
                                 required = false
-                                requiredLength = 0..7
+                                requiredLength = 6..7
                                 placeholder = "#B6C8B5"
                             }
                         })
@@ -173,7 +173,7 @@ object TagCmd : SlashCommandEvent {
                         }, ActionRow {
                             +TextInput("tagColor", "Color (HEX)", TextInputStyle.SHORT) {
                                 required = false
-                                requiredLength = 0..7
+                                requiredLength = 6..7
                                 placeholder = "#B6C8B5"
                                 value = tagColor
                             }

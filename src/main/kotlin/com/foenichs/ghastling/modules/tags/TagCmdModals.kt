@@ -9,54 +9,80 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import java.net.URI
 
 object TagCmdModals : ModalEvent {
+
+    private fun validateTagValues(
+        tagTitle: String?,
+        tagDescription: String?,
+        tagImageUrl: String?,
+        tagColorInput: String?,
+        requireColor: Boolean = false
+    ): List<String> {
+        val errors = mutableListOf<String>()
+
+        if (tagTitle == null && tagDescription == null && tagImageUrl == null) {
+            errors.add("You **must provide** at least a title, description, or image URL.")
+        }
+
+        if (!tagImageUrl.isNullOrBlank()) {
+            try {
+                URI(tagImageUrl).toURL()
+            } catch (e: Exception) {
+                errors.add("The URL of the image that has been provided is **not** valid.")
+            }
+        }
+        if (requireColor || !tagColorInput.isNullOrBlank()) {
+            if (tagColorInput == null ||
+                !(tagColorInput.matches(Regex("\\b[A-Fa-f0-9]{6}\\b")) ||
+                        tagColorInput.matches(Regex("#\\b[A-Fa-f0-9]{6}\\b")))
+            ) {
+                errors.add("The color that has been provided is **not** valid.")
+            }
+        }
+
+        return errors
+    }
+
     override suspend fun trigger(it: ModalInteractionEvent) {
         val baseModalId = it.modalId.split(":")[0]
+        val tagName = it.modalId.split(":").getOrNull(1)
+
+        val tagTitle = it.getValue("tagTitle")?.asString?.takeIf { s -> s.isNotBlank() }
+        val tagDescription = it.getValue("tagDescription")?.asString?.takeIf { s -> s.isNotBlank() }
+        val tagImageUrl = it.getValue("tagImageUrl")?.asString?.takeIf { s -> s.isNotBlank() }
+        val tagColorInput = it.getValue("tagColor")?.asString
+
+        val errors = when (baseModalId) {
+            "tagAddModal" -> validateTagValues(
+                tagTitle, tagDescription, tagImageUrl, tagColorInput, requireColor = true
+            )
+            "tagEditModal" -> validateTagValues(
+                tagTitle, tagDescription, tagImageUrl, tagColorInput, requireColor = false
+            )
+            else -> emptyList()
+        }
+
+        if (errors.isNotEmpty()) {
+            it.reply_(
+                useComponentsV2 = true,
+                components = listOf(
+                    Container {
+                        +TextDisplay("- " + errors.joinToString("\n- "))
+                    },
+                ),
+                ephemeral = true,
+            ).queue()
+            return
+        }
+
         when (baseModalId) {
             "tagAddModal" -> {
-                val tagName = it.modalId.split(":").getOrNull(1)
-
-                val tagTitle = it.getValue("tagTitle")?.asString?.takeIf { it.isNotBlank() }
-                val tagDescription = it.getValue("tagDescription")?.asString?.takeIf { it.isNotBlank() }
-                val tagImageUrl = it.getValue("tagImageUrl")?.asString?.takeIf { it.isNotBlank() }
-                val tagColor = it.getValue("tagColor")?.asString
-
-                if (tagTitle == null && tagDescription == null && tagImageUrl == null) {
-                    it.reply_(
-                        useComponentsV2 = true,
-                        components = listOf(
-                            Container {
-                                +TextDisplay("You **must provide** at least a title, description, or image URL.")
-                            },
-                        ),
-                        ephemeral = true,
-                    ).queue()
-                    return
-                }
-
-                if (tagImageUrl != null) {
-                    try {
-                        URI(tagImageUrl).toURL() // This will throw an exception if the URL is invalid
-                    } catch (e: Exception) {
-                        it.reply_(
-                            useComponentsV2 = true,
-                            components = listOf(
-                                Container {
-                                    +TextDisplay("The URL of the image that has been provided is **not** valid.")
-                                },
-                            ),
-                            ephemeral = true,
-                        ).queue()
-                        return
-                    }
-                }
-
                 SQL.call("INSERT INTO tags (guildId, tagName, title, description, imageUrl, color) VALUES (?, ?, ?, ?, ?, ?);") {
                     setLong(1, it.guild?.idLong ?: return)
                     setString(2, tagName)
                     setString(3, tagTitle)
                     setString(4, tagDescription)
                     setString(5, tagImageUrl)
-                    setString(6, tagColor)
+                    setString(6, tagColorInput)
                 }
 
                 val prefix = SQL.call("SELECT prefix FROM guildIndex WHERE guildId = ?") {
@@ -78,48 +104,11 @@ object TagCmdModals : ModalEvent {
             }
 
             "tagEditModal" -> {
-                val tagName = it.modalId.split(":").getOrNull(1)
-
-                val tagTitle = it.getValue("tagTitle")?.asString?.takeIf { it.isNotBlank() }
-                val tagDescription = it.getValue("tagDescription")?.asString?.takeIf { it.isNotBlank() }
-                val tagImageUrl = it.getValue("tagImageUrl")?.asString?.takeIf { it.isNotBlank() }
-                val tagColor = it.getValue("tagColor")?.asString
-
-                if (tagTitle == null && tagDescription == null && tagImageUrl == null) {
-                    it.reply_(
-                        useComponentsV2 = true,
-                        components = listOf(
-                            Container {
-                                +TextDisplay("You **must provide** at least a title, description, or image URL.")
-                            },
-                        ),
-                        ephemeral = true,
-                    ).queue()
-                    return
-                }
-
-                if (tagImageUrl != null) {
-                    try {
-                        URI(tagImageUrl).toURL() // This will throw an exception if the URL is invalid
-                    } catch (e: Exception) {
-                        it.reply_(
-                            useComponentsV2 = true,
-                            components = listOf(
-                                Container {
-                                    +TextDisplay("The URL of the image that has been provided is **not** valid.")
-                                },
-                            ),
-                            ephemeral = true,
-                        ).queue()
-                        return
-                    }
-                }
-
                 SQL.call("UPDATE tags SET title = ?, description = ?, imageUrl = ?, color = ? WHERE guildId = ? AND tagName = ?;") {
                     setString(1, tagTitle)
                     setString(2, tagDescription)
                     setString(3, tagImageUrl)
-                    setString(4, tagColor)
+                    setString(4, tagColorInput)
                     setLong(5, it.guild?.idLong ?: return)
                     setString(6, tagName)
                 }
