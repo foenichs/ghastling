@@ -23,9 +23,12 @@ object TagTriggering {
         }
         if (result.next()) {
             val prefix = result.getString("prefix")
-            if (messageContent.contains(prefix)) {
-                val arguments = messageContent.removePrefix(prefix).trim()
-                val tagName = arguments.split(Regex("\\s+")).firstOrNull() ?: return@listener
+            // Match prefix at start or after whitespace, then capture everything until the end of the line as tag name (including spaces)
+            val regex = Regex("""(?<=^|\s)\Q$prefix\E\s*(.+)""")
+            val match = regex.find(messageContent)
+            val tagName = match?.groupValues?.get(1)?.trim()
+
+            if (!tagName.isNullOrBlank()) {
                 val tagResult =
                     SQL.call("SELECT content, title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
                         setLong(1, guildId)
@@ -56,9 +59,12 @@ object TagTriggering {
                             here = false,
                         )
                     ).queue()
-                }
-                if (messageContent.startsWith(prefix)) {
-                    message.delete().queue()
+
+                    // Only delete if the whole message is just the prefix and tag name (with optional whitespace)
+                    val deleteRegex = Regex("""^\s*\Q$prefix\E\s*.+\s*$""")
+                    if (deleteRegex.matches(messageContent)) {
+                        message.delete().queue()
+                    }
                 }
             }
         }
