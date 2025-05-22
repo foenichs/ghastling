@@ -33,7 +33,7 @@ object SlashCommandManager {
         // Adds global commands
         Ghastling.JDA.updateCommands().addCommands(Command("tag", "Manage tags for this server.") {
             defaultPermissions = DefaultMemberPermissions.enabledFor(
-                Permission.MESSAGE_MANAGE
+                Permission.MANAGE_SERVER
             )
             subcommand("add", "Adds a new tag for this server.") {
                 option<String>(
@@ -58,12 +58,13 @@ object SlashCommandManager {
                     "space", "Add a space behind the prefix.", true
                 )
             }
-            subcommand("permissions", "Changes who can send tags.")
-//                subcommand("send", "Sends a tag of this server.") {
-//                    option<String>(
-//                        "name", "The name of the tag you want to send.", true
-//                    )
-//                }
+            subcommand("permissions", "Changes which roles are allowed to send tags.")
+
+//            subcommand("send", "Sends a tag of this server without any restrictions.") {
+//                option<String>(
+//                    "name", "The name of the tag you want to send.", true
+//                )
+//            }
         }).queue()
     }
 }

@@ -3,9 +3,12 @@ package com.foenichs.ghastling.modules.tags
 import com.foenichs.ghastling.utils.entities.SlashCommandEvent
 import com.foenichs.ghastling.utils.sql.SQL
 import dev.minn.jda.ktx.interactions.components.*
+import dev.minn.jda.ktx.messages.MentionConfig
+import dev.minn.jda.ktx.messages.Mentions
 import dev.minn.jda.ktx.messages.reply_
 import net.dv8tion.jda.api.components.textinput.TextInputStyle
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.components.selects.EntitySelectMenu
 
 object TagCmd : SlashCommandEvent {
     override suspend fun trigger(it: SlashCommandInteractionEvent) {
@@ -217,24 +220,44 @@ object TagCmd : SlashCommandEvent {
             }
 
             "permissions" -> {
+                val result = SQL.call("SELECT * FROM tagAllowedRoles WHERE guildId = ?") {
+                    setLong(1, it.guild?.idLong ?: return@call)
+                }
+
+                val roles = mutableListOf<Long>()
+                while (result.next()) {
+                    roles.add(result.getLong("roleId"))
+                }
+
+                val defaultValues = roles.map {
+                    EntitySelectMenu.DefaultValue.role(it)
+                }
+
                 it.reply_(
-                    useComponentsV2 = true,
-                    components = listOf(Container {
+                    useComponentsV2 = true, components = listOf(Container {
                         accentColor = 0xB6C8B5
-                        +TextDisplay("Here, you can **add or remove roles that can send tags** using Ghastling. This applies to all existing and future tags. You can select up to 12 roles.")
+                        +TextDisplay("### <:role:1374752116475822130> Allowed Roles\nHere, you can **add and remove roles that can send tags** using Ghastling.")
                     }, ActionRow {
                         +EntitySelectMenu(
-                            placeholder = "Select roles",
+
+                            placeholder = "No allowed roles, everyone can use tags.",
                             customId = "tagConfigRoles",
                             types = listOf(
-                                net.dv8tion.jda.api.components.selects.EntitySelectMenu.SelectTarget.ROLE
+                                EntitySelectMenu.SelectTarget.ROLE
                             ),
                             valueRange = 0..12,
-                        )
-                    }),
-                    ephemeral = true,
+                            builder = {
+                                if (defaultValues.isNotEmpty()) {
+                                    setDefaultValues(*defaultValues.toTypedArray())
+                                }
+                            })
+                    }), ephemeral = true, mentions = Mentions(
+                        MentionConfig.users(emptyList()),
+                        MentionConfig.roles(emptyList()),
+                        everyone = false,
+                        here = false,
+                    )
                 ).queue()
-                TODO()
             }
 
             "send" -> {
