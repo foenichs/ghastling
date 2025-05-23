@@ -223,6 +223,40 @@ object TagCmd : SlashCommandEvent {
                 ).queue()
             }
 
+            "list" -> {
+                SQL.call("SELECT * FROM tags WHERE guildId = ?") {
+                    setLong(1, it.guild?.idLong ?: return@call)
+                }.use { resultSet ->
+                    val tags = mutableListOf<String>()
+                    while (resultSet.next()) {
+                        tags.add(resultSet.getString("tagName"))
+                    }
+                    if (tags.isEmpty()) {
+                        it.reply_(
+                            useComponentsV2 = true,
+                            components = listOf(
+                                Container {
+                                    accentColor = 0xB6C8B5
+                                    +TextDisplay("This server does not have any tags yet. You can create one with </tag add:1373059281884024974>.")
+                                },
+                            ),
+                            ephemeral = true,
+                        ).queue()
+                    } else {
+                        it.reply_(
+                            useComponentsV2 = true,
+                            components = listOf(
+                                Container {
+                                    accentColor = 0xB6C8B5
+                                    +TextDisplay("### Tags of ${it.guild?.name}\n`${tags.joinToString("`, `", postfix = "`")}")
+                                },
+                            ),
+                            ephemeral = true,
+                        ).queue()
+                    }
+                }
+            }
+
             "prefix" -> {
                 val prefixInput = it.getOption("prefix")?.asString ?: return
                 val space = it.getOption("space")?.asBoolean ?: return

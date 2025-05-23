@@ -53,6 +53,7 @@ object SlashCommandManager {
                     "name", "The name of the tag that will be edited.", true
                 ) { setMaxLength(32) }
             }
+            subcommand("list", "Shows all tags of this server.")
             subcommand("prefix", "Change the prefix to send tags.") {
                 option<String>(
                     "prefix", "The prefix to send tags.", true
