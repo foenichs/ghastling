@@ -89,7 +89,7 @@ object TagCmd : SlashCommandEvent {
                             +TextInput("tagTitle", "Title", TextInputStyle.SHORT) {
                                 required = false
                                 requiredLength = 0..256
-                                placeholder = "How to use Ghastling"
+                                placeholder = "Prominent text above the tag content."
                             }
                         }, ActionRow {
                             +TextInput("tagDescription", "Description", TextInputStyle.PARAGRAPH) {
@@ -105,8 +105,8 @@ object TagCmd : SlashCommandEvent {
                         }, ActionRow {
                             +TextInput("tagColor", "Color (HEX)", TextInputStyle.SHORT) {
                                 required = false
-                                requiredLength = 6..7
-                                placeholder = "#B6C8B5"
+                                requiredLength = 0..7
+                                placeholder = "#b6c8b5"
                             }
                         })
                     },
@@ -195,7 +195,7 @@ object TagCmd : SlashCommandEvent {
                             +TextInput("tagTitle", "Title", TextInputStyle.SHORT) {
                                 required = false
                                 requiredLength = 0..256
-                                placeholder = "How to use Ghastling"
+                                placeholder = "Prominent text above the tag content."
                                 value = tagTitle
                             }
                         }, ActionRow {
@@ -214,9 +214,9 @@ object TagCmd : SlashCommandEvent {
                         }, ActionRow {
                             +TextInput("tagColor", "Color (HEX)", TextInputStyle.SHORT) {
                                 required = false
-                                requiredLength = 6..7
-                                placeholder = "#B6C8B5"
-                                value = tagColor
+                                requiredLength = 0..7
+                                placeholder = "#b6c8b5"
+                                value = "#$tagColor"
                             }
                         })
                     },

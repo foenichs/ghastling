@@ -20,7 +20,7 @@ object SlashCommandManager {
     fun startListen(jda: JDA) = jda.listener<SlashCommandInteractionEvent> {
         val commandClass = commands[it.name] ?: return@listener
         val options = buildString { it.options.forEach { option -> append(option.asString + " ") } }
-        println("[DcBot] ${it.user.name} executed /${it.name} ${it.subcommandName ?: ""} $options")
+        println("[Ghastling] ${it.user.name} executed /${it.name} ${it.subcommandName ?: ""} $options")
         commandClass.trigger(it)
     }
 

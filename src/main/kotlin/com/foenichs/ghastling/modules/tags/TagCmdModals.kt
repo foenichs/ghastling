@@ -14,8 +14,7 @@ object TagCmdModals : ModalEvent {
         tagTitle: String?,
         tagDescription: String?,
         tagImageUrl: String?,
-        tagColorInput: String?,
-        requireColor: Boolean = false
+        tagColorInput: String?
     ): List<String> {
         val errors = mutableListOf<String>()
 
@@ -30,11 +29,10 @@ object TagCmdModals : ModalEvent {
                 errors.add("The URL of the image that has been provided is **not** valid.")
             }
         }
-        if (requireColor || !tagColorInput.isNullOrBlank()) {
-            if (tagColorInput == null ||
-                !(tagColorInput.matches(Regex("\\b[A-Fa-f0-9]{6}\\b")) ||
-                        tagColorInput.matches(Regex("#\\b[A-Fa-f0-9]{6}\\b")))
-            ) {
+
+        if (!tagColorInput.isNullOrBlank()) {
+            if (!(tagColorInput.matches(Regex("\\b[A-Fa-f0-9]{6}\\b")) ||
+                        tagColorInput.matches(Regex("#\\b[A-Fa-f0-9]{6}\\b")))) {
                 errors.add("The color that has been provided is **not** valid.")
             }
         }
@@ -49,14 +47,17 @@ object TagCmdModals : ModalEvent {
         val tagTitle = it.getValue("tagTitle")?.asString?.takeIf { s -> s.isNotBlank() }
         val tagDescription = it.getValue("tagDescription")?.asString?.takeIf { s -> s.isNotBlank() }
         val tagImageUrl = it.getValue("tagImageUrl")?.asString?.takeIf { s -> s.isNotBlank() }
-        val tagColorInput = it.getValue("tagColor")?.asString
+        val tagColorInput = it.getValue("tagColor")?.asString?.takeIf { s -> s.isNotBlank() }
+
+        // Strip the '#' from the color input if present, otherwise keep as is or null.
+        val sanitizedTagColor = tagColorInput?.replace("#", "")
 
         val errors = when (baseModalId) {
             "tagAddModal" -> validateTagValues(
-                tagTitle, tagDescription, tagImageUrl, tagColorInput, requireColor = true
+                tagTitle, tagDescription, tagImageUrl, tagColorInput
             )
             "tagEditModal" -> validateTagValues(
-                tagTitle, tagDescription, tagImageUrl, tagColorInput, requireColor = false
+                tagTitle, tagDescription, tagImageUrl, tagColorInput
             )
             else -> emptyList()
         }
@@ -88,7 +89,7 @@ object TagCmdModals : ModalEvent {
                     setString(3, tagTitle)
                     setString(4, tagDescription)
                     setString(5, tagImageUrl)
-                    setString(6, tagColorInput)
+                    setString(6, sanitizedTagColor)
                 }
 
                 val prefix = SQL.call("SELECT prefix FROM guildIndex WHERE guildId = ?") {
@@ -114,7 +115,7 @@ object TagCmdModals : ModalEvent {
                     setString(1, tagTitle)
                     setString(2, tagDescription)
                     setString(3, tagImageUrl)
-                    setString(4, tagColorInput)
+                    setString(4, sanitizedTagColor)
                     setLong(5, it.guild?.idLong ?: return)
                     setString(6, tagName)
                 }
