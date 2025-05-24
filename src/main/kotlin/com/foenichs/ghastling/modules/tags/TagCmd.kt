@@ -216,7 +216,9 @@ object TagCmd : SlashCommandEvent {
                                 required = false
                                 requiredLength = 0..7
                                 placeholder = "#b6c8b5"
-                                value = "#$tagColor"
+                                if (tagColor != null) {
+                                    value = "#$tagColor"
+                                }
                             }
                         })
                     },
