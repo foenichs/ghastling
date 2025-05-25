@@ -6,9 +6,9 @@ import dev.minn.jda.ktx.interactions.components.*
 import dev.minn.jda.ktx.messages.MentionConfig
 import dev.minn.jda.ktx.messages.Mentions
 import dev.minn.jda.ktx.messages.reply_
+import net.dv8tion.jda.api.components.selects.EntitySelectMenu
 import net.dv8tion.jda.api.components.textinput.TextInputStyle
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.components.selects.EntitySelectMenu
 
 object TagCmd : SlashCommandEvent {
     override suspend fun trigger(it: SlashCommandInteractionEvent) {
@@ -45,12 +45,12 @@ object TagCmd : SlashCommandEvent {
                     ).queue()
                     return
                 }
-                if (!tagName.matches(Regex("^[a-zA-Z ]*\$"))) {
+                if (!tagName.matches(Regex("^[a-zA-Z0-9]+( [a-zA-Z0-9]+)?\$"))) {
                     it.reply_(
                         useComponentsV2 = true,
                         components = listOf(
                             Container {
-                                +TextDisplay("The tag name can't contain any **special characters**.")
+                                +TextDisplay("The tag name can't contain any **special characters** or more than **one space**.")
                             },
                         ),
                         ephemeral = true,
@@ -250,7 +250,13 @@ object TagCmd : SlashCommandEvent {
                             components = listOf(
                                 Container {
                                     accentColor = 0xB6C8B5
-                                    +TextDisplay("### Tags of ${it.guild?.name}\n`${tags.joinToString("`, `", postfix = "`")}")
+                                    +TextDisplay(
+                                        "### Tags of ${it.guild?.name} (${tags.size})\n`${
+                                            tags.joinToString(
+                                                "`, `", postfix = "`"
+                                            )
+                                        }"
+                                    )
                                 },
                             ),
                             ephemeral = true,
