@@ -229,11 +229,24 @@ object TagCmd : SlashCommandEvent {
                 SQL.call("SELECT * FROM tags WHERE guildId = ?") {
                     setLong(1, it.guild?.idLong ?: return@call)
                 }.use { resultSet ->
-                    val tags = mutableListOf<String>()
+                    val categories = mutableMapOf<String, MutableList<String>>()
+                    val uncategorized = mutableListOf<String>()
+                    var totalCount = 0
+
                     while (resultSet.next()) {
-                        tags.add(resultSet.getString("tagName"))
+                        val tagName = resultSet.getString("tagName")
+                        val split = tagName.split(" ", limit = 2)
+                        if (split.size > 1) {
+                            val category = split[0]
+                            val tag = split[1]
+                            categories.getOrPut(category) { mutableListOf() }.add(tag)
+                        } else {
+                            uncategorized.add(split[0])
+                        }
+                        totalCount++
                     }
-                    if (tags.isEmpty()) {
+
+                    if (categories.isEmpty() && uncategorized.isEmpty()) {
                         it.reply_(
                             useComponentsV2 = true,
                             components = listOf(
@@ -245,18 +258,28 @@ object TagCmd : SlashCommandEvent {
                             ephemeral = true,
                         ).queue()
                     } else {
+                        val sb = StringBuilder()
+                        sb.append("### Tags of ${it.guild?.name} ($totalCount)\n")
+
+                        // Uncategorized tags
+                        if (uncategorized.isNotEmpty()) {
+                            sb.append(uncategorized.joinToString("`, `", prefix = "`", postfix = "`"))
+                            sb.append("\n\n")
+                        }
+
+                        // Categories
+                        categories.entries.forEachIndexed { idx, (category, tags) ->
+                            sb.append("**$category** (${tags.size}):\n")
+                            sb.append(tags.joinToString("`, `", prefix = "`", postfix = "`"))
+                            if (idx != categories.size - 1) sb.append("\n\n")
+                        }
+
                         it.reply_(
                             useComponentsV2 = true,
                             components = listOf(
                                 Container {
                                     accentColor = 0xB6C8B5
-                                    +TextDisplay(
-                                        "### Tags of ${it.guild?.name} (${tags.size})\n`${
-                                            tags.joinToString(
-                                                "`, `", postfix = "`"
-                                            )
-                                        }"
-                                    )
+                                    +TextDisplay(sb.toString().trim())
                                 },
                             ),
                             ephemeral = true,
