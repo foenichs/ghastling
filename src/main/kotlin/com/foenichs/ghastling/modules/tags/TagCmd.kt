@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.interactions.components.*
 import dev.minn.jda.ktx.messages.MentionConfig
 import dev.minn.jda.ktx.messages.Mentions
 import dev.minn.jda.ktx.messages.reply_
+import dev.minn.jda.ktx.messages.send
 import net.dv8tion.jda.api.components.selects.EntitySelectMenu
 import net.dv8tion.jda.api.components.textinput.TextInputStyle
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -364,6 +365,76 @@ object TagCmd : SlashCommandEvent {
                         here = false,
                     )
                 ).queue()
+            }
+
+            "import" -> {
+                val exportingEnabled = SQL.call("SELECT exporting FROM guildIndex WHERE guildId = ?") {
+                    setLong(1, it.guild?.idLong ?: return)
+                }.use { resultSet ->
+                    if (resultSet.next()) resultSet.getBoolean("exporting") else null
+                }
+                val sourceGuildId = it.getOption("guild")?.asLong ?: return
+                if (exportingEnabled != true) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                +TextDisplay("The provided guild does not have exporting enabled.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                } else {
+                    it.deferReply(true).queue()
+
+                    val tags =
+                        SQL.call("SELECT tagName, content, title, description, imageUrl, color FROM tags WHERE guildId = ?") {
+                            setLong(1, sourceGuildId)
+                        }.use { resultSet ->
+                            val tagList = mutableListOf<Map<String, Any?>>()
+                            while (resultSet.next()) {
+                                tagList.add(
+                                    mapOf(
+                                        "tagName" to resultSet.getString("tagName"),
+                                        "content" to resultSet.getString("content"),
+                                        "title" to resultSet.getString("title"),
+                                        "description" to resultSet.getString("description"),
+                                        "imageUrl" to resultSet.getString("imageUrl"),
+                                        "color" to resultSet.getString("color")
+                                    )
+                                )
+                            }
+                            tagList
+                        }
+
+                    SQL.call("DELETE FROM tags WHERE guildId = ?") {
+                        setLong(1, it.guild?.idLong ?: return)
+                    }
+
+                    tags.forEach { tag ->
+                        SQL.call("INSERT INTO tags (guildId, tagName, content, title, description, imageUrl, color) VALUES (?, ?, ?, ?, ?, ?, ?)") {
+                            setLong(1, it.guild?.idLong ?: return@forEach)
+                            setString(2, tag["tagName"] as String)
+                            setString(3, tag["content"] as String?)
+                            setString(4, tag["title"] as String?)
+                            setString(5, tag["description"] as String?)
+                            setString(6, tag["imageUrl"] as String?)
+                            setString(7, tag["color"] as String?)
+                        }
+                    }
+
+                    it.hook.send(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                accentColor = 0xB6C8B5
+                                +TextDisplay("All tags from the specified guild have been successfully imported.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                }
             }
 
             "send" -> {

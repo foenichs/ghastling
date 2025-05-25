@@ -66,6 +66,11 @@ object SlashCommandManager {
                     )
                 }
                 subcommand("permissions", "Changes which roles are allowed to send tags.")
+                subcommand("import", "Import tags from another server (Experimental)") {
+                    option<String>(
+                        "guild", "The ID of the server you want to import tags from.", true
+                    )
+                }
 //            subcommand("send", "Sends a tag of this server without any restrictions.") {
 //                option<String>(
 //                    "name", "The name of the tag you want to send.", true
