@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object TagTriggering {
-    // Per-channel cooldowns: channelId -> timestamp when cooldown expires
-    private val channelCooldowns = ConcurrentHashMap<Long, Long>()
+    // Per-channel, per-tag cooldowns: (channelId, tagName) -> timestamp when cooldown expires
+    private val tagCooldowns = ConcurrentHashMap<Pair<Long, String>, Long>()
     private const val COOLDOWN_MILLIS = 10_000L // 10 seconds
 
     val onMessage = Ghastling.JDA.listener<MessageReceivedEvent> {
@@ -53,14 +53,15 @@ object TagTriggering {
         val tagName = match?.groupValues?.get(1)?.trim()
         if (tagName.isNullOrBlank()) return@listener
 
-        // PER-CHANNEL COOLDOWN CHECK
+        // PER-CHANNEL, PER-TAG COOLDOWN CHECK
         val now = System.currentTimeMillis()
-        val cooldownUntil = channelCooldowns[channelId] ?: 0L
+        val cooldownKey = channelId to tagName.lowercase()
+        val cooldownUntil = tagCooldowns[cooldownKey] ?: 0L
         if (now < cooldownUntil) {
             it.message.delete().queue()
             return@listener
         }
-        channelCooldowns[channelId] = now + COOLDOWN_MILLIS
+        tagCooldowns[cooldownKey] = now + COOLDOWN_MILLIS
 
         val tagResult =
             SQL.call("SELECT content, title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
@@ -69,31 +70,37 @@ object TagTriggering {
             }
         if (!tagResult.next()) return@listener
 
-        val hasContainerContent =
-            !tagResult.getString("title").isNullOrEmpty() ||
-                    !tagResult.getString("description").isNullOrEmpty() ||
-                    !tagResult.getString("imageUrl").isNullOrEmpty()
+        val hasContainerContent = !tagResult.getString("title").isNullOrEmpty() || !tagResult.getString("description")
+            .isNullOrEmpty() || !tagResult.getString("imageUrl").isNullOrEmpty()
 
-        channel.send(
-            useComponentsV2 = true,
-            components = listOfNotNull(
-                tagResult.getString("content")?.takeIf { it.isNotEmpty() }?.let { TextDisplay(it) },
-                if (hasContainerContent) Container {
+        val content = tagResult.getString("content")
+        if (content.isNullOrEmpty()) {
+            // If "content" is null or empty, send the CV2 message
+            channel.send(
+                useComponentsV2 = true, components = listOfNotNull(if (hasContainerContent) Container {
                     accentColor = tagResult.getString("color")?.toIntOrNull(16)
                     tagResult.getString("title")?.let { +TextDisplay("### $it") }
                     tagResult.getString("description")?.let { +TextDisplay(it) }
                     tagResult.getString("imageUrl")?.let {
                         +MediaGallery { item(it) }
                     }
-                } else null
-            ),
-            mentions = Mentions(
-                MentionConfig.users(emptyList()),
-                MentionConfig.roles(emptyList()),
-                everyone = false,
-                here = false,
-            )
-        ).queue()
+                } else null), mentions = Mentions(
+                    MentionConfig.users(emptyList()),
+                    MentionConfig.roles(emptyList()),
+                    everyone = false,
+                    here = false,
+                )).queue()
+        } else {
+            // If "content" is NOT null or empty, send a non-CV2 message
+            channel.send(
+                useComponentsV2 = false, content = content, mentions = Mentions(
+                    MentionConfig.users(emptyList()),
+                    MentionConfig.roles(emptyList()),
+                    everyone = false,
+                    here = false,
+                )
+            ).queue()
+        }
 
         // Only delete if the whole message is just the prefix and tag name (with optional whitespace)
         val deleteRegex = Regex("""^\s*\Q$prefix\E\s*.+\s*$""")
