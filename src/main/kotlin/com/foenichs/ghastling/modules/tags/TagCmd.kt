@@ -368,12 +368,12 @@ object TagCmd : SlashCommandEvent {
             }
 
             "import" -> {
+                val sourceGuildId = it.getOption("guild")?.asLong ?: return
                 val exportingEnabled = SQL.call("SELECT exporting FROM guildIndex WHERE guildId = ?") {
-                    setLong(1, it.guild?.idLong ?: return)
+                    setLong(1, sourceGuildId)
                 }.use { resultSet ->
                     if (resultSet.next()) resultSet.getBoolean("exporting") else null
                 }
-                val sourceGuildId = it.getOption("guild")?.asLong ?: return
                 if (exportingEnabled != true) {
                     it.reply_(
                         useComponentsV2 = true,
@@ -387,7 +387,6 @@ object TagCmd : SlashCommandEvent {
                     return
                 } else {
                     it.deferReply(true).queue()
-
                     val tags =
                         SQL.call("SELECT tagName, content, title, description, imageUrl, color FROM tags WHERE guildId = ?") {
                             setLong(1, sourceGuildId)
