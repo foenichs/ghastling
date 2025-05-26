@@ -437,24 +437,51 @@ object TagCmd : SlashCommandEvent {
                 }
             }
 
-            "send" -> {
-//                val resultSet =
-//                    SQL.call("SELECT guild_id, tag_name, components FROM tags WHERE guild_id = ? AND tag_name = ?") {
-//                        setLong(1, it.guild?.idLong ?: return)
-//                        setString(2, it.getOption("name")?.asString ?: return)
-//                    }
-//
-//                while (resultSet.next()) {
-//                    val componentsJson = resultSet.getString("components")
-//                    val components = kotlin.runCatching {
-//                        json.decodeFromString<List<Component>>(componentsJson)
-//                    }.getOrNull()?.map { it.toDiscord() }
-//
-//                    it.reply_(
-//                        useComponentsV2 = true,
-//                        components = components,
-//                    ).queue()
-//                }
+            "preview" -> {
+                val tagName = it.getOption("name")?.asString ?: return
+                val tagResult =
+                    SQL.call("SELECT content, title, description, imageUrl, color FROM tags WHERE guildId = ? AND tagName = ?") {
+                        setLong(1, it.guild?.idLong ?: return@call)
+                        setString(2, tagName)
+                    }
+                if (!tagResult.next()) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOf(
+                            Container {
+                                +TextDisplay("The tag **$tagName** does not exist. You can create it with </tag add:1373059281884024974>.")
+                            },
+                        ),
+                        ephemeral = true,
+                    ).queue()
+                    return
+                }
+                val hasContainerContent =
+                    !tagResult.getString("title").isNullOrEmpty() || !tagResult.getString("description")
+                        .isNullOrEmpty() || !tagResult.getString("imageUrl").isNullOrEmpty()
+                val content = tagResult.getString("content")
+
+                // Ephemeral preview to the user
+                if (content.isNullOrEmpty()) {
+                    it.reply_(
+                        useComponentsV2 = true,
+                        components = listOfNotNull(if (hasContainerContent) Container {
+                            accentColor = tagResult.getString("color")?.toIntOrNull(16)
+                            tagResult.getString("title")?.let { +TextDisplay("### $it") }
+                            tagResult.getString("description")?.let { +TextDisplay(it) }
+                            tagResult.getString("imageUrl")?.let {
+                                +MediaGallery { item(it) }
+                            }
+                        } else null),
+                        ephemeral = true,
+                    ).queue()
+                } else {
+                    it.reply_(
+                        useComponentsV2 = false,
+                        content = content,
+                        ephemeral = true,
+                    ).queue()
+                }
             }
         }
     }
