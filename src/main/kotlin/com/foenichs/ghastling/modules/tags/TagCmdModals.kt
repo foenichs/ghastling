@@ -41,8 +41,9 @@ object TagCmdModals : ModalEvent {
     }
 
     override suspend fun trigger(it: ModalInteractionEvent) {
+        println(it.modalId)
         val baseModalId = it.modalId.split(":")[0]
-        val tagName = it.modalId.split(":").getOrNull(1)
+        val tagName = it.modalId.split(":").getOrNull(1) ?: return
 
         val tagTitle = it.getValue("tagTitle")?.asString?.takeIf { s -> s.isNotBlank() }
         val tagDescription = it.getValue("tagDescription")?.asString?.takeIf { s -> s.isNotBlank() }
@@ -95,7 +96,14 @@ object TagCmdModals : ModalEvent {
                 val prefix = SQL.call("SELECT prefix FROM guildIndex WHERE guildId = ?") {
                     setLong(1, it.guild?.idLong ?: return)
                 }.use { resultSet ->
-                    if (resultSet.next()) resultSet.getString("prefix") else null
+                    if (resultSet.next()) resultSet.getString("prefix") else "?"
+                }
+
+                val parts = tagName.split(' ', limit = 2)
+                val message = if (parts.size == 2) {
+                    "The **${parts[1]}** tag has been added to the **${parts[0]}** category. You can now use it using `$prefix$tagName`."
+                } else {
+                    "The **$tagName** tag was successfully added, you can now use it with `$prefix$tagName`."
                 }
 
                 it.reply_(
@@ -103,7 +111,7 @@ object TagCmdModals : ModalEvent {
                     components = listOf(
                         Container {
                             accentColor = 0xB6C8B5
-                            +TextDisplay("The **$tagName** tag was successfully added, you can now use it with `$prefix$tagName`.")
+                            +TextDisplay(message)
                         },
                     ),
                     ephemeral = true,

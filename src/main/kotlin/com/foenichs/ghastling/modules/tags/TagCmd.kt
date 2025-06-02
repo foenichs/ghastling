@@ -71,12 +71,19 @@ object TagCmd : SlashCommandEvent {
                         setString(2, tagName)
                         setString(3, tagContent)
                     }
+                    val parts = tagName.split(' ', limit = 2)
+                    val message = if (parts.size == 2) {
+                        "The **${parts[1]}** tag has been added to the **${parts[0]}** category. You can now use it using `$prefix$tagName`."
+                    } else {
+                        "The **$tagName** tag was successfully added, you can now use it with `$prefix$tagName`."
+                    }
+
                     it.reply_(
                         useComponentsV2 = true,
                         components = listOf(
                             Container {
                                 accentColor = 0xB6C8B5
-                                +TextDisplay("The **$tagName** tag was successfully added, you can now use it with `$prefix$tagName`.")
+                                +TextDisplay(message)
                             },
                         ),
                         ephemeral = true,
@@ -126,16 +133,24 @@ object TagCmd : SlashCommandEvent {
                         setLong(1, it.guild?.idLong ?: return@call)
                         setString(2, tagName)
                     }
+
+                    val parts = tagName.split(' ', limit = 2)
+                    val message = if (parts.size == 2) {
+                        "The **${parts[1]}** tag has been removed from the **${parts[0]}** category."
+                    } else {
+                        "The **$tagName** tag has been successfully removed."
+                    }
                     it.reply_(
                         useComponentsV2 = true,
                         components = listOf(
                             Container {
                                 accentColor = 0xB6C8B5
-                                +TextDisplay("The tag **$tagName** has been successfully removed.")
+                                +TextDisplay(message)
                             },
                         ),
                         ephemeral = true,
                     ).queue()
+
                 } else {
                     it.reply_(
                         useComponentsV2 = true,
