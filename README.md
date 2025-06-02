@@ -4,4 +4,4 @@ Using `/tag add` will open a menu to configure the embed sent when the tag is us
 
 The prefix of the server changes how members use tags. You can change it using `/tag prefix`. If your prefix is `?`, typing `?rules` will send the **rules** tag. Tag commands are deleted after the tag is sent, if the message doesn't contain other content. The tag command doesn't have to be at the start of the message.
 
-*Feel free to report bugs or suggest features by opening an [GitHub Issue](https://github.com/foenichs/ghastling).*</span>
+*Feel free to report bugs or suggest features by opening an [GitHub Issue](https://github.com/foenichs/ghastling/issues).*</span>
