@@ -36,6 +36,8 @@ dependencies {
     implementation("org.mariadb.jdbc", "mariadb-java-client", "3.5.2")
 
     implementation("org.yaml:snakeyaml:2.4")
+    implementation("org.json:json:20250517")
+    implementation("com.google.code.gson:gson:2.13.1")
 }
 
 application {

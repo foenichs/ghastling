@@ -1,5 +1,6 @@
 package com.foenichs.ghastling.utils.manager
 
+import com.foenichs.ghastling.modules.badnick.BadnickCmd
 import com.foenichs.ghastling.Ghastling
 import com.foenichs.ghastling.modules.tags.TagCmd
 import com.foenichs.ghastling.utility.HelpCmd
@@ -9,12 +10,15 @@ import dev.minn.jda.ktx.interactions.commands.option
 import dev.minn.jda.ktx.interactions.commands.subcommand
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 
 object SlashCommandManager {
     private val commands = mapOf(
-        "tag" to TagCmd, "help" to HelpCmd
+        "tag" to TagCmd,
+        "help" to HelpCmd,
+        "badnick" to BadnickCmd
     )
 
     // Logs command executions in the console
@@ -29,7 +33,14 @@ object SlashCommandManager {
 
         // Adds commands to a test server
         val flame = Ghastling.JDA.getGuildById(1044265134253670400)
-        flame?.updateCommands()?.addCommands()?.queue()
+        flame?.updateCommands()?.addCommands(
+            Command("badnick", "Removes special characters and cleans up nicknames (Experimental)") {
+                option<User>("user", "The user whose nickname should be cleaned up.", true)
+                defaultPermissions = DefaultMemberPermissions.enabledFor(
+                    Permission.NICKNAME_MANAGE
+                )
+            }
+        )?.queue()
 
         // Adds global commands
         Ghastling.JDA.updateCommands().addCommands(Command("tag", "Manage tags for this server.") {
