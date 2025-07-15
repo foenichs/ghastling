@@ -13,7 +13,6 @@ import dev.minn.jda.ktx.jdabuilder.intents
 import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.LoggerFactory
@@ -40,8 +39,7 @@ object Ghastling {
         settings = Json.decodeFromString<Config>(credentialFile.readText())
         JDA = default(settings.token) {
             enableCache(CacheFlag.VOICE_STATE)
-            setStatus(OnlineStatus.IDLE)
-            setActivity(Activity.customStatus("currently in beta"))
+            setStatus(OnlineStatus.ONLINE)
             intents += listOf(
                 GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.GUILD_MEMBERS,
