@@ -4,6 +4,7 @@ import com.foenichs.ghastling.config.Config
 import com.foenichs.ghastling.modules.tags.TagCmdModals
 import com.foenichs.ghastling.modules.tags.TagTriggering
 import com.foenichs.ghastling.utility.ServerInitialisation
+import com.foenichs.ghastling.utility.SystemInfoButton
 import com.foenichs.ghastling.utils.manager.ButtonManager
 import com.foenichs.ghastling.utils.manager.ModalManager
 import com.foenichs.ghastling.utils.manager.RoleDropDownManager
@@ -17,6 +18,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.time.Instant
 
 fun main() {
     Ghastling
@@ -48,6 +50,7 @@ object Ghastling {
         }
 
         JDA.awaitReady()
+        SystemInfoButton.startTime = Instant.now()
 
         ButtonManager.startListen(JDA)
         RoleDropDownManager.startListen(JDA)

@@ -47,8 +47,8 @@ object HelpCmd : SlashCommandEvent {
                     "-# Feel free to report bugs or suggest features by opening an issue on GitHub."
                 )
             }, ActionRow {
+                +secondary("SystemInfo", "System Info")
                 +link("https://github.com/foenichs/ghastling", "GitHub")
-                +link("https://discord.com/oauth2/authorize?client_id=1365745768383905923", "Invite me")
             }), ephemeral = true
         ).queue()
     }

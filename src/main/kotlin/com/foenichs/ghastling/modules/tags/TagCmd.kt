@@ -46,7 +46,7 @@ object TagCmd : SlashCommandEvent {
                     ).queue()
                     return
                 }
-                if (!tagName.matches(Regex("^[a-zA-Z0-9]+( [a-zA-Z0-9]+)?\$"))) {
+                if (!tagName.matches(Regex("^[a-zA-Z0-9]+( [a-zA-Z0-9]+)?$"))) {
                     it.reply_(
                         useComponentsV2 = true,
                         components = listOf(

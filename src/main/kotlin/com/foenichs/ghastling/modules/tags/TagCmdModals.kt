@@ -25,7 +25,7 @@ object TagCmdModals : ModalEvent {
         if (!tagImageUrl.isNullOrBlank()) {
             try {
                 URI(tagImageUrl).toURL()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 errors.add("The URL of the image that has been provided is **not** valid.")
             }
         }
@@ -41,7 +41,6 @@ object TagCmdModals : ModalEvent {
     }
 
     override suspend fun trigger(it: ModalInteractionEvent) {
-        println(it.modalId)
         val baseModalId = it.modalId.split(":")[0]
         val tagName = it.modalId.split(":").getOrNull(1) ?: return
 
